@@ -1,6 +1,6 @@
 from langchain_community.tools import ShellTool
 from langchain.agents import initialize_agent, AgentType
-from code_gen import llm
+from config import llm
 import warnings
 from langchain_core.globals import set_verbose, set_debug
 

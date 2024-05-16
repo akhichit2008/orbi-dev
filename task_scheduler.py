@@ -12,6 +12,8 @@ from langchain_core.runnables import (
     RunnablePassthrough
 )
 from config import llm
+from langchain_community.document_loaders import AsyncHtmlLoader
+from langchain_community.document_transformers import Html2TextTransformer
 
 @tool
 def add_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrapper:
@@ -27,9 +29,28 @@ def append_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrappe
         file_handle.write(code)
     return file_handle
 
-tools = [add_code,append_code]
+@tool
+def extract_web_docs(urls:str) -> str:
+    '''Extracts code documentation from a source and formats it'''
+    loader = AsyncHtmlLoader(urls)
+    docs = loader.load()
+    html2text_transformer = Html2TextTransformer()
+    docs_text = html2text_transformer.transform_documents(docs)
+    print(docs_text)
+    return docs_text[0].page_content[0:1000]
+
+
+@tool
+def add_documentation_as_md(documentation:str) -> _io.TextIOWrapper:
+    '''Adds Generated documentation for a piece of code to a file'''
+    with open("documentation.md","a") as file_handle:
+        file_handle.write(documentation)
+    return file_handle
+
+tools = [add_code,append_code,extract_web_docs,add_documentation_as_md]
 llm = llm.bind_tools(tools)
 tool_map = {tool.name: tool for tool in tools}
+
 
 
 def invoke_tools(message: AIMessage) -> Runnable:
@@ -41,5 +62,3 @@ def invoke_tools(message: AIMessage) -> Runnable:
 
 
 chain = llm | invoke_tools
-
-

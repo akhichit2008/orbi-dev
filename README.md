@@ -8,5 +8,8 @@ Note: This AI Agent can only function on unix based operating systems with bash 
 ### SETUP
 ```
 pip install -r requirements.txt
+
 playwright install
+
+python3 main.py
 ```

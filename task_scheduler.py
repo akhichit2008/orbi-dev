@@ -5,6 +5,7 @@ import _io
 from operator import itemgetter
 from typing import Dict,List,Union
 from langchain_core.messages import AIMessage,HumanMessage
+from langchain.agents import initialize_agent, AgentExecutor, create_openai_functions_agent
 from langchain_core.runnables import (
     Runnable,
     RunnableLambda,
@@ -12,7 +13,7 @@ from langchain_core.runnables import (
     RunnableMap,
     RunnablePassthrough
 )
-from config import llm, LLMOutputCode
+from config import llm, LLMOutputCode, prompt
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import Html2TextTransformer
 from langchain_community.tools import ShellTool
@@ -44,21 +45,32 @@ def append_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrappe
     return file_handle
 
 tools = [add_code,append_code,shell_tool]
-llm = llm.bind_tools(tools)
+#main_agent = initialize_agent(tools,llm,agent="structured-chat-zero-shot-react-description",verbose=True)
+#llm = llm.bind_tools(tools)
+main_agent = create_openai_functions_agent(llm, tools, prompt)
 tool_map = {tool.name: tool for tool in tools}
+
+#print(main_agent.agent.llm_chain.prompt.template)
 
 
 
 def invoke_tools(message: AIMessage) -> Runnable:
     tool_map = {tool.name: tool for tool in tools}
     tool_calls = message.tool_calls.copy()
-    for call in tool_calls:
-        call['output'] = tool_map[call['name']].invoke(call['args'])
+    for idx, call in enumerate(tool_calls):
+        print(f"Processing tool call {idx}: {call}")
+        if call['name'] in tool_map:
+            try:
+                call['output'] = tool_map[call['name']].invoke(call['args'])
+            except Exception as e:
+                print(f"Error invoking tool {call['name']} with args {call['args']}: {e}")
+        else:
+            print(f"Tool {call['name']} not found in tool_map.")
     return tool_calls
 
 
-main_llm_chain = llm | invoke_tools
-
+#main_llm_chain = main_agent 
+main_llm_chain = AgentExecutor(agent=main_agent,tools=tools,verbose=True)
 
 
 def parser_job(routine:Callable):

@@ -13,13 +13,13 @@ from langchain_core.runnables import (
     RunnableMap,
     RunnablePassthrough
 )
-from config import llm, LLMOutputCode, prompt
+from config import llm,prompt
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import Html2TextTransformer
 from langchain_community.tools import ShellTool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from parsers import ActionPlanParser
+from parsers import ActionPlanParser, CodeParser
 
 
 @tool
@@ -33,6 +33,8 @@ def shell_tool(command:str)->str:
 @tool
 def add_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrapper:
     """Creates a file and adds contents to it"""
+    #code_parser = CodeParser(code)
+    #code = code_parser.format()
     with open(file_name,"w") as file_handle:
         file_handle.write(code)
     return file_handle
@@ -40,6 +42,8 @@ def add_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrapper:
 @tool
 def append_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrapper:
     """Appends code to an existing code file"""
+    #code_parser = CodeParser(code)
+    #code = code_parser.format()
     with open(file_name,"a") as file_handle:
         file_handle.write(code)
     return file_handle

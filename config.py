@@ -9,4 +9,3 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 llm = ChatGoogleGenerativeAI(model="gemini-pro")
 
 prompt = hub.pull("hwchase17/openai-functions-agent")
-type LLMOutputCode = bool(0,1)

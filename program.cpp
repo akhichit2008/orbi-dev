@@ -1,1 +1,0 @@
-#include <iostream>\n#include <ctime>\n\nusing namespace std;\n\nint main() {\n  time_t now = time(0);\n  struct tm *ltm = localtime(&now);\n  cout << \"Current time and date: \" << asctime(ltm) << endl;\n  return 0;\n}

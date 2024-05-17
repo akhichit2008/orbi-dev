@@ -1,8 +1,6 @@
-''' Custom made output parsers to extract specific pieces of information from LLM outputs'''
-
-from typing import Callable
-
+''' Custom output parsers to extract specific pieces of information from LLM outputs'''
 class ActionPlanParser:
+    '''An Output Parser to parse the action plan provided by LLM in a specific format'''
     def __init__(self,text:str) -> dict:
         self.text = text
         self.tasks = {}
@@ -23,14 +21,6 @@ class ActionPlanParser:
                 formatted_output.append(f"  {step}")
         return "\n".join(formatted_output)
 
-
-def parser_job(routine:Callable):
-    '''A decorator to pass in any routine to be executed as a job in each task entry from a LLM'''
-    def wrapper():
-        for task, steps in action_plan_parser.tasks.items():
-            routine(task,steps)
-
-    return wrapper
 
 '''
 action_plan = """

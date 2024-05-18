@@ -1,5 +1,7 @@
 import black
 from io import StringIO
+from docx import Document
+import PyPDF2
 
 ''' Custom output parsers to extract specific pieces of information from LLM outputs'''
 class ActionPlanParser:
@@ -81,3 +83,24 @@ def format_code(code):
                 indent_level = max(0, indent_level - 1)
     return '\n'.join(formatted_lines)
     formatted_code = format_code(lines)
+
+class DocumentParser:
+    def __init__(self,doc_path:str):
+        self.doc_path = doc_path
+
+    def word_parse(self) -> str:
+        doc = Document(self.doc_path)
+        full_text = []
+        for p in doc.paragraphs:
+            full_text.append(p.text)
+        return '\n'.join(full_text)
+    
+    def pdf_parse(self) -> str:
+        pdf = PyPDF2.PdfReader(self.doc_path)
+        num_pages = len(pdf.pages)
+        full_text = []
+        for page_num in range(num_pages):
+            page = pdf.pages[page_num]
+            curr_page_text = page.extract_text()
+            full_text.append(curr_page_text)
+        return '\n'.join(full_text)

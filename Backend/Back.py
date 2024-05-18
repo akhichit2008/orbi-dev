@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 db=SQLALCHRMY()
 db.init_app(app)
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
+login_manager.login_view = 'l'
 login_manager.init_app(app)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) 
@@ -31,7 +31,7 @@ def si():
     user = User.query.filter_by(email=email).first()
     if user: 
       return redirect("/l")
-    user= User(email=email, name=name, password=g(password, method='sha256'))
+    user=User(email=email, name=name, password=g(password, method='sha256'))
     db.session.add(user)
     db.session.commit()
     return redirect("/l")
@@ -42,7 +42,7 @@ def lo():
     email = request.form.get('email')
     password = request.form.get('password')
     user = User.query.filter_by(email=email).first()
-    if not user or not check_password_hash(user.password, password):
+    if not user or not p(user.password, password):
         flash('Please check your login details and try again.')
         return redirect("/l") 
     login_user(user)

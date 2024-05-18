@@ -57,11 +57,27 @@ class CodeParser:
     def __init__(self,code):
         self.code = code
 
-    def format(self):
-        self.code = self.code.replace('\\n','\n')
-        self.code = StringIO(self.code)
-        try:
-            formatted_code = black.format_file_contents(self.code.getvalue(),fast=True,mode=black.FileMode())
-        except black.NothingChanged:
-            formatted_code = self.code.getvalue()
-        return formatted_code
+def format_code(code):
+    cleaned_code = code.replace('\\n', '\n').replace('\n', '\n')
+    lines = cleaned_code.split('\n')
+    formatted_lines = []
+    indent_level = 0
+    indent_size = 4
+    for line in lines:
+        stripped_line = line.strip()
+        if not stripped_line:
+            continue
+        # Adjust indent level
+        if stripped_line.endswith(':'):
+            formatted_lines.append(' ' * indent_level * indent_size + stripped_line)
+            indent_level += 1
+        elif stripped_line in ['else:', 'elif:', 'except:', 'finally:']:
+            indent_level -= 1
+            formatted_lines.append(' ' * indent_level * indent_size + stripped_line)
+            indent_level += 1
+        else:
+            formatted_lines.append(' ' * indent_level * indent_size + stripped_line)
+            if stripped_line and stripped_line[-1] == ')':
+                indent_level = max(0, indent_level - 1)
+    return '\n'.join(formatted_lines)
+    formatted_code = format_code(lines)

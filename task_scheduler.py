@@ -1,5 +1,6 @@
 from langchain_core.tools import tool
 from typing import Callable
+import shutil
 import os
 import _io
 from operator import itemgetter
@@ -19,7 +20,7 @@ from langchain_community.document_transformers import Html2TextTransformer
 from langchain_community.tools import ShellTool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from parsers import ActionPlanParser, CodeParser
+from parsers import ActionPlanParser, CodeParser, format_code
 
 
 @tool
@@ -31,24 +32,38 @@ def shell_tool(command:str)->str:
     return result
 
 @tool
-def add_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrapper:
+def create_project_dir(dir_name:str,dir_path:str="~/orbicode/"):
+    """A Simple tool that can be used to create a new project directory. It can also be used to create a subdirectory inside of a project (in case needed)"""
+    if not os.path.exists(os.path.join(dir_path,dir_name)):
+        os.makedirs(os.path.join(dir_path,dir_name))
+
+@tool
+def add_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     """Creates a file and adds contents to it"""
     #code_parser = CodeParser(code)
     #code = code_parser.format()
+    code = format_code(code)
     with open(file_name,"w") as file_handle:
         file_handle.write(code)
     return file_handle
 
 @tool
-def append_code(file_name:str,code:str,path:str="/std/code") -> _io.TextIOWrapper:
+def append_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     """Appends code to an existing code file"""
     #code_parser = CodeParser(code)
     #code = code_parser.format()
+    code = format_code(code)
     with open(file_name,"a") as file_handle:
         file_handle.write(code)
     return file_handle
 
-tools = [add_code,append_code,shell_tool]
+@tool
+def copy_file(file_name:str,copy_to_path:str):
+    """A simple tool to help move around code files from current directory to the required project directory"""
+    shutil.copy(file_name,copy_to_path)
+
+
+tools = [create_project_dir,add_code,append_code,shell_tool,copy_file]
 #main_agent = initialize_agent(tools,llm,agent="structured-chat-zero-shot-react-description",verbose=True)
 #llm = llm.bind_tools(tools)
 main_agent = create_openai_functions_agent(llm, tools, prompt)

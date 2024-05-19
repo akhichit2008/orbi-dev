@@ -6,6 +6,8 @@ import _io
 from operator import itemgetter
 from typing import Dict,List,Union
 from langchain_core.messages import AIMessage,HumanMessage
+from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
+from langchain_community.tools.playwright.utils import create_async_playwright_browser
 from langchain.agents import initialize_agent, AgentExecutor, create_openai_functions_agent
 from langchain_core.runnables import (
     Runnable,
@@ -23,6 +25,7 @@ from langchain.chains import LLMChain
 from parsers import ActionPlanParser, CodeParser, format_code
 
 
+
 @tool
 def shell_tool(command:str)->str:
     '''A Bash Shell Tool for the agent to use to install dependecies and execute code'''
@@ -32,10 +35,15 @@ def shell_tool(command:str)->str:
     return result
 
 @tool
-def create_project_dir(dir_name:str,dir_path:str="~/orbicode/"):
+def create_project_dir(dir_name:str,dir_path:str=""):
     """A Simple tool that can be used to create a new project directory. It can also be used to create a subdirectory inside of a project (in case needed)"""
     if not os.path.exists(os.path.join(dir_path,dir_name)):
         os.makedirs(os.path.join(dir_path,dir_name))
+
+@tool
+def copy_file(file_name:str,copy_to_path:str):
+    """A simple tool to help move around code files from current directory to the required project directory"""
+    shutil.copy(file_name,copy_to_path)
 
 @tool
 def add_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
@@ -56,12 +64,6 @@ def append_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     with open(file_name,"a") as file_handle:
         file_handle.write(code)
     return file_handle
-
-@tool
-def copy_file(file_name:str,copy_to_path:str):
-    """A simple tool to help move around code files from current directory to the required project directory"""
-    shutil.copy(file_name,copy_to_path)
-
 
 tools = [create_project_dir,add_code,append_code,shell_tool,copy_file]
 #main_agent = initialize_agent(tools,llm,agent="structured-chat-zero-shot-react-description",verbose=True)

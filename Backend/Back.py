@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'ss'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
-db=SQLALCHRMY()
+db=SQLAlchemy()
 db.init_app(app)
 login_manager = LoginManager()
 login_manager.login_view = 'l'

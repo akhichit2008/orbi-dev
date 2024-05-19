@@ -18,6 +18,11 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     username = db.Column(db.String(120))
+class proj(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email=db.Column(db.String(100), unique=True)
+    name=db.Column(db.String(100))
+    des=db.Column(db.String(120))
 db.create_all(app=app)
 @login_manager.user_loader
 def load_user(user_id):

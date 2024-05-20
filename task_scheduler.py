@@ -46,7 +46,7 @@ def copy_file(file_name:str,copy_to_path:str):
     shutil.copy(file_name,copy_to_path)
 
 @tool
-def add_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
+def add_code(file_name:str,code:str,path:str=os.path.join(os.path.expanduser("~"),"/orbidev/")) -> _io.TextIOWrapper:
     """Creates a file and adds contents to it"""
     #code_parser = CodeParser(code)
     #code = code_parser.format()
@@ -56,7 +56,7 @@ def add_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     return file_handle
 
 @tool
-def append_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
+def append_code(file_name:str,code:str,path:str=os.path.join(os.path.expanduser("~"),"/orbidev/")) -> _io.TextIOWrapper:
     """Appends code to an existing code file"""
     #code_parser = CodeParser(code)
     #code = code_parser.format()

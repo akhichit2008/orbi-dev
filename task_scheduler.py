@@ -2,6 +2,7 @@ from langchain_core.tools import tool
 from typing import Callable
 import shutil
 import os
+import time
 import _io
 from operator import itemgetter
 from typing import Dict,List,Union
@@ -23,7 +24,7 @@ from langchain_community.tools import ShellTool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from parsers import ActionPlanParser, CodeParser, format_code
-
+import subprocess
 
 
 @tool
@@ -35,10 +36,13 @@ def shell_tool(command:str)->str:
     return result
 
 @tool
-def create_project_dir(dir_name:str,dir_path:str=""):
+def create_project_dir(dir_path:str):
     """A Simple tool that can be used to create a new project directory. It can also be used to create a subdirectory inside of a project (in case needed)"""
-    if not os.path.exists(os.path.join(dir_path,dir_name)):
-        os.makedirs(os.path.join(dir_path,dir_name))
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+        subprocess.Popen(['code-server','--bind-addr','127.0.0.1:8000',dir_path])
+        time.sleep(5)
+    return dir_path
 
 @tool
 def copy_file(file_name:str,copy_to_path:str):
@@ -46,24 +50,29 @@ def copy_file(file_name:str,copy_to_path:str):
     shutil.copy(file_name,copy_to_path)
 
 @tool
-def add_code(file_name:str,code:str,path:str=os.path.join(os.path.expanduser("~"),"/orbidev/")) -> _io.TextIOWrapper:
+def add_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     """Creates a file and adds contents to it"""
-    #code_parser = CodeParser(code)
-    #code = code_parser.format()
     code = format_code(code)
+    code = code.replace('\\','').strip()
     with open(file_name,"w") as file_handle:
         file_handle.write(code)
     return file_handle
 
 @tool
-def append_code(file_name:str,code:str,path:str=os.path.join(os.path.expanduser("~"),"/orbidev/")) -> _io.TextIOWrapper:
+def append_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     """Appends code to an existing code file"""
-    #code_parser = CodeParser(code)
-    #code = code_parser.format()
     code = format_code(code)
+    code = code.replace('\\','').strip()
+    code = code.replace("\",").strip()
     with open(file_name,"a") as file_handle:
         file_handle.write(code)
     return file_handle
+
+@tool
+def change_working_dir(dir_path:str):
+    """Helps the agent change current working directory to seperate project directory"""
+    os.chdir(dir_path)
+    return os.getcwd()
 
 tools = [create_project_dir,add_code,append_code,shell_tool,copy_file]
 #main_agent = initialize_agent(tools,llm,agent="structured-chat-zero-shot-react-description",verbose=True)

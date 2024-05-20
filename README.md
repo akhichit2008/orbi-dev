@@ -13,5 +13,7 @@ playwright install
 
 sudo playwright install-deps
 
+curl -fsSL https://code-server.dev/install.sh | sh
+
 python3 main.py
 ```

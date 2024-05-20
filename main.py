@@ -21,4 +21,4 @@ main_llm_chain.invoke(f"follow these instructions and do the needfull :- {action
 '''
 
 
-main_llm_chain.invoke({"input":f"You are a software engineer. Using the tools provided to you install all the required dependencies and write the code for the given problem :- {topic}. All the code files must be placed inside of a seperate project directory in an organised manner"})
+main_llm_chain.invoke({"input":f"You are a software engineer. Using the tools provided to you install all the required dependencies and write the code for the given problem :- {topic}"})

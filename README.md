@@ -15,5 +15,9 @@ sudo playwright install-deps
 
 curl -fsSL https://code-server.dev/install.sh | sh
 
+npm install -g snyk
+
+synk auth
+
 python3 main.py
 ```

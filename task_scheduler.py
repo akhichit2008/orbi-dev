@@ -18,12 +18,13 @@ from langchain_core.runnables import (
     RunnablePassthrough
 )
 from config import llm,prompt
+from agent_github import create_public_repo, init_local_repo , commit_files_to_existing_repo
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import Html2TextTransformer
 from langchain_community.tools import ShellTool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from parsers import ActionPlanParser, CodeParser, format_code
+from parsers import ActionPlanParser, CodeParser, format_code, indent_code
 import subprocess
 
 
@@ -35,13 +36,14 @@ def shell_tool(command:str)->str:
     print(result)
     return result
 
+
 @tool
 def create_project_dir(dir_path:str):
     """A Simple tool that can be used to create a new project directory. It can also be used to create a subdirectory inside of a project (in case needed)"""
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-        subprocess.Popen(['code-server','--bind-addr','127.0.0.1:8000',dir_path])
-        time.sleep(5)
+        #subprocess.Popen(['code-server','--bind-addr','127.0.0.1:8000',dir_path])
+        #time.sleep(5)
     return dir_path
 
 @tool
@@ -50,11 +52,18 @@ def copy_file(file_name:str,copy_to_path:str):
     shutil.copy(file_name,copy_to_path)
 
 @tool
+def create_code_file(file_name:str,path:str):
+    """Helps the Agent create a new code file in the newly created project directory"""
+    with open(os.path.join(path,file_name),"w") as f:
+        pass
+
+@tool
 def add_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     """Creates a file and adds contents to it"""
     code = format_code(code)
     code = code.replace('\\','').strip()
-    with open(file_name,"w") as file_handle:
+    code = indent_code(code)
+    with open(os.path.join(path,file_name),"r+") as file_handle:
         file_handle.write(code)
     return file_handle
 
@@ -63,8 +72,8 @@ def append_code(file_name:str,code:str,path:str) -> _io.TextIOWrapper:
     """Appends code to an existing code file"""
     code = format_code(code)
     code = code.replace('\\','').strip()
-    code = code.replace("\",").strip()
-    with open(file_name,"a") as file_handle:
+    code = indent_code(code)
+    with open(os.path.join(path,file_name),"a") as file_handle:
         file_handle.write(code)
     return file_handle
 
@@ -74,7 +83,18 @@ def change_working_dir(dir_path:str):
     os.chdir(dir_path)
     return os.getcwd()
 
-tools = [create_project_dir,add_code,append_code,shell_tool,copy_file]
+@tool
+def commit_code(repo_name:str,project_dir:str)  -> bool:
+    """A Tool to commit all the project code files that the LLM generated to a public github repo after all the coding is done"""
+    try:
+        create_public_repo(repo_name)
+        init_local_repo(project_dir,repo_name)
+        return True
+    except:
+        print("An Error has occured while commiting code to Github")
+        return False
+
+tools = [create_project_dir,create_code_file,add_code,append_code,shell_tool,copy_file]
 #main_agent = initialize_agent(tools,llm,agent="structured-chat-zero-shot-react-description",verbose=True)
 #llm = llm.bind_tools(tools)
 main_agent = create_openai_functions_agent(llm, tools, prompt)

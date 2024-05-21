@@ -84,6 +84,33 @@ def format_code(code):
     return '\n'.join(formatted_lines)
     formatted_code = format_code(lines)
 
+def indent_code(code_string, num_spaces=4):
+    indented_code = ""
+    indentation_level = 0
+    ignore_next_newline = False
+
+    for line in code_string.split("\n"):
+        line = line.strip()
+        if not line:
+            if ignore_next_newline:
+                ignore_next_newline = False
+                continue
+            else:
+                indented_code += "\n"
+                continue
+
+        if line.endswith("{"):
+            indented_code += " " * (num_spaces * indentation_level) + line + "\n"
+            indentation_level += 1
+            ignore_next_newline = True
+        elif line.startswith("}"):
+            indentation_level -= 1
+            indented_code += " " * (num_spaces * indentation_level) + line + "\n"
+        else:
+            indented_code += " " * (num_spaces * indentation_level) + line + "\n"
+
+    return indented_code
+
 class DocumentParser:
     def __init__(self,doc_path:str):
         self.doc_path = doc_path

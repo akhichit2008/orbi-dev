@@ -19,5 +19,7 @@ npm install -g snyk
 
 synk auth
 
+chmod ugo+rwx main.py
+
 python3 main.py
 ```

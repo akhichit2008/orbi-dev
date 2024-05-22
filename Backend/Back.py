@@ -73,6 +73,9 @@ def index(*b):
 @app.route("/",methods=["GET"])
 def index1(*b):
     return render_template("index.html")
-
+@app.route("/sand",methods=["GET"])
+@login_required
+def index(*b):
+    return render_template("sandbox.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
 if __name__ == "__main__":
   app.run()

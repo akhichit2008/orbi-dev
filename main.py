@@ -19,6 +19,9 @@ action_plan = action_llm.run({"topic":topic})
 main_llm_chain.invoke(f"follow these instructions and do the needfull :- {action_plan}")
 
 '''
-
-
-main_llm_chain.invoke({"input":f"You are a software engineer. Using the tools provided to you install all the required dependencies and write the code for the given problem :- {topic}"})
+def call_agent(prompt:str) -> bool:
+    try:
+        main_llm_chain.invoke({"input":f"You are a software engineer. Using the tools provided to you install all the required dependencies and write the code for the given problem :- {prompt}"})
+    except Exception as e:
+        print(e)
+    

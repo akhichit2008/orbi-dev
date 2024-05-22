@@ -76,6 +76,9 @@ def index1(*b):
 @app.route("/sand",methods=["GET","POST"])
 @login_required
 def index(*b):
+    if request.method=="POST":
+        n1=request.form.get("n")
+        
     
     return render_template("sandbox.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from flask_login import UserMixin,login_user,logout_user,login_required
+from flask_login import UserMixin,login_user,logout_user,login_required,current_user
 from flask import Flask,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -58,3 +58,7 @@ def lo():
 def log():
   logout_user()
   return "logged out"
+@app.route("/",methods=["GET"])
+@login_required
+def index(*b):
+    return render_template(current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())

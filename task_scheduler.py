@@ -33,6 +33,9 @@ def shell_tool(command:str)->str:
     '''A Bash Shell Tool for the agent to use to install dependecies and execute code'''
     shell = ShellTool()
     result = shell.run(command)
+    with open("shell_logs.txt","a") as file_handle:
+        file_handle.write(command + "\n")
+        file_handle.write(result + "\n")
     print(result)
     return result
 

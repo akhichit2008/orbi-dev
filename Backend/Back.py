@@ -40,7 +40,7 @@ def si():
     db.session.add(user)
     db.session.commit()
     return redirect("/l")
-  return render_template("html")
+  return render_template("signup.html")
 @app.route("/l",methods=["POST","GET"])
 def lo():
   if request.method=="POST":
@@ -52,13 +52,16 @@ def lo():
         return redirect("/l") 
     login_user(user)
     return redirect("/l")
-  return render_template("html")
+  return render_template("login.html")
 @app.route("/lo",methods=["GET"])
 @login_required
 def log():
   logout_user()
   return "logged out"
-@app.route("/",methods=["GET"])
+@app.route("/p",methods=["GET"])
 @login_required
 def index(*b):
     return render_template(,"profile.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
+@app.route("/",methods=["GET"])
+def index1(*b):
+    return render_template("index.html")

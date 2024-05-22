@@ -3,6 +3,7 @@ from flask import Flask,flash, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask import Flask
+from main import call_agent
 from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'ss'
@@ -78,8 +79,7 @@ def index1(*b):
 def index(*b):
     if request.method=="POST":
         n1=request.form.get("n")
-        
-    
-    return render_template("sandbox.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
+        call_agent(n)
+    return render_template("sandbox.html")
 if __name__ == "__main__":
   app.run()

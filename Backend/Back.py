@@ -61,7 +61,8 @@ def log():
 @app.route("/p",methods=["GET"])
 @login_required
 def index(*b):
-    return render_template(,"profile.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
+    return render_template("profile.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
 @app.route("/",methods=["GET"])
 def index1(*b):
     return render_template("index.html")
+app.run()

@@ -3,7 +3,7 @@ from flask import Flask,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask import Flask
-from werkzeug.security import generate_password_hash, check_password_hash as g,p
+from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'ss'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
@@ -23,7 +23,8 @@ class proj(db.Model):
     email=db.Column(db.String(100), unique=True)
     name=db.Column(db.String(100))
     des=db.Column(db.String(120))
-db.create_all(app=app)
+with app.app_context():
+    db.create_all()
 @login_manager.user_loader
 def load_user(user_id):
   return User.query.get(int(user_id))
@@ -36,7 +37,7 @@ def si():
     user = User.query.filter_by(email=email).first()
     if user: 
       return redirect("/l")
-    user=User(email=email, name=name, password=g(password, method='sha256'))
+    user=User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
     db.session.add(user)
     db.session.commit()
     return redirect("/l")
@@ -47,7 +48,7 @@ def lo():
     email = request.form.get('email')
     password = request.form.get('password')
     user = User.query.filter_by(email=email).first()
-    if not user or not p(user.password, password):
+    if not user or not check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
         return redirect("/l") 
     login_user(user)

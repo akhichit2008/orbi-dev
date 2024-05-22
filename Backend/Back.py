@@ -1,5 +1,5 @@
 from flask_login import UserMixin,login_user,logout_user,login_required,current_user
-from flask import Flask,flash
+from flask import Flask,flash, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask import Flask
@@ -7,6 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'ss'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.static_folder = 'static'
+# sample href :- {{ url_for('static', filename='[css_folder]/[css-file].css') }}
 
 db=SQLAlchemy()
 db.init_app(app)
@@ -28,6 +30,7 @@ with app.app_context():
 @login_manager.user_loader
 def load_user(user_id):
   return User.query.get(int(user_id))
+
 @app.route("/s",methods=["POST","GET"])
 def si():
   if request.method=="POST":
@@ -42,6 +45,7 @@ def si():
     db.session.commit()
     return redirect("/l")
   return render_template("signup.html")
+
 @app.route("/l",methods=["POST","GET"])
 def lo():
   if request.method=="POST":
@@ -54,16 +58,21 @@ def lo():
     login_user(user)
     return redirect("/l")
   return render_template("login.html")
+
 @app.route("/lo",methods=["GET"])
 @login_required
 def log():
   logout_user()
   return "logged out"
+
 @app.route("/p",methods=["GET"])
 @login_required
 def index(*b):
     return render_template("profile.html",current_user=current_user,project=proj.query.filter_by(email=current_user.email).first())
+
 @app.route("/",methods=["GET"])
 def index1(*b):
     return render_template("index.html")
-app.run()
+
+if __name__ == "__main__":
+  app.run()
